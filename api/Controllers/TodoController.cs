@@ -1,4 +1,5 @@
 using api.Config;
+using api.Dtos.TodoItem;
 using api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -7,10 +8,10 @@ namespace api.Controllers;
 
 [Route("api/tasks/")]
 [ApiController]
-public class TaskController: ControllerBase
+public class TodoController: ControllerBase
 {
     private readonly DatabaseContext _context ;
-    public TaskController(DatabaseContext databaseContext)
+    public TodoController(DatabaseContext databaseContext)
     {
         _context = databaseContext;
     }
@@ -48,5 +49,25 @@ public class TaskController: ControllerBase
         }
         
         return Ok(item.ToTodoDto());
+    }
+
+    [HttpPost("")]
+    public async Task<IActionResult> Post([FromBody] CreateTodoDto createDto)
+    {
+        var model = createDto.ToTodoFromCreateDto();
+   
+        try
+        {
+            _context.TodoItems.Add(model);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving TodoItem: {ex.Message}");
+            return StatusCode(500, "Internal server error");
+        }
+        var todoDto = model.ToTodoDto();
+
+        return CreatedAtAction(nameof(GetById), new { id = model.Id }, todoDto);
     }
 }

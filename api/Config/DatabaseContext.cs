@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using api.Models;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace api.Config;
 
@@ -15,24 +16,26 @@ public class DatabaseContext: DbContext
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
+
             var entityTypeClrType = entityType.ClrType;
 
-            var createdAtProperty = entityTypeClrType.GetProperty("CreatedAt");
-            var updateAtProperty = entityTypeClrType.GetProperty("UpdateAt");
+            var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+                v => v.ToUniversalTime(), 
+                v => v.ToUniversalTime()   
+            );
 
-            if (createdAtProperty != null && createdAtProperty.PropertyType == typeof(DateTime))
+            // Loop through each property in the entity
+            foreach (var property in entityTypeClrType.GetProperties())
             {
-                modelBuilder.Entity(entityTypeClrType)
-                    .Property("CreatedAt")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP"); 
+                
+                if (property.PropertyType == typeof(DateTime) || property.PropertyType == typeof(DateTime?))
+                {
+                    modelBuilder.Entity(entityTypeClrType)
+                        .Property(property.Name)
+                        .HasConversion(dateTimeConverter);
+                }
             }
 
-            if (updateAtProperty != null && updateAtProperty.PropertyType == typeof(DateTime))
-            {
-                modelBuilder.Entity(entityTypeClrType)
-                    .Property("UpdateAt")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
-            }
         }
 
         base.OnModelCreating(modelBuilder);

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using api.Config;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
@@ -8,7 +9,12 @@ Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+    });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

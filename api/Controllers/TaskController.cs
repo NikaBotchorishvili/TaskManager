@@ -1,4 +1,5 @@
 using api.Config;
+using api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -25,7 +26,8 @@ public class TaskController: ControllerBase
         endDate ??= DateTime.MaxValue;
         var items = _context.TodoItems
             .Where(item => item.CreatedAt > startDate && item.CreatedAt < endDate )
-            .ToList();
+            .ToList()
+            .Select(item => item.ToTodoDto());
         return Ok(items);
     }
 
@@ -37,12 +39,14 @@ public class TaskController: ControllerBase
     public IActionResult GetById([FromRoute] int id)
     {
 
-        var item =  _context.TodoItems.Find(id);
+        var item = _context.TodoItems.SingleOrDefault(ite => ite.Id == id);
+
 
         if (item == null)
         {
-            return NotFound(); 
+            return NotFound();
         }
-        return Ok(item);
+        
+        return Ok(item.ToTodoDto());
     }
 }

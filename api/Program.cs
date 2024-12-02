@@ -1,5 +1,9 @@
 using System.Text.Json.Serialization;
 using api.Config;
+using api.Dtos.TodoItem;
+using api.Interfaces;
+using api.Models;
+using api.Repositories;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 
@@ -25,8 +29,9 @@ builder.Services.AddSwaggerGen(options =>
     });
     options.EnableAnnotations();
 });
+builder.Services.AddScoped<IRepository<TodoItem, CreateTodoDto, UpdateTodoDto>, TodoRepo>();
+
 var connectionString = builder.Configuration["DATABASE_URL"];
-Console.WriteLine($"Connection string: {connectionString}");    
 if (string.IsNullOrEmpty(connectionString))
 {
     throw new ArgumentNullException("DATABASE_URL", "Connection string is missing");

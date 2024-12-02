@@ -1,7 +1,11 @@
+using System.Linq.Expressions;
 using api.Config;
 using api.Dtos.TodoItem;
+using api.Interfaces;
 using api.Mappers;
+using api.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers;
@@ -11,9 +15,11 @@ namespace api.Controllers;
 public class TodoController: ControllerBase
 {
     private readonly DatabaseContext _context ;
-    public TodoController(DatabaseContext databaseContext)
+    private readonly IRepository<TodoItem, CreateTodoDto, UpdateTodoDto> _repo;
+    public TodoController(IRepository<TodoItem, CreateTodoDto, UpdateTodoDto> repo, DatabaseContext context)
     {
-        _context = databaseContext;
+        _context = context;
+        _repo = repo;
     }
 
     [HttpGet("all/")]
@@ -21,15 +27,16 @@ public class TodoController: ControllerBase
         Summary = "Get All the tasks. filters between dates",
         Description = "Retrieves all of the tasks in the database"
     )]
-    public IActionResult GetAll([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
+    public async Task<IActionResult> GetAll([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
     {
         startDate ??= DateTime.MinValue;
         endDate ??= DateTime.MaxValue;
-        var items = _context.TodoItems
-            .Where(item => item.CreatedAt > startDate && item.CreatedAt < endDate )
-            .ToList()
-            .Select(item => item.ToTodoDto());
-        return Ok(items);
+
+        Expression<Func<TodoItem, bool>> filter = (TodoItem item) => item.CreatedAt > startDate && item.CreatedAt < endDate;
+
+        
+        
+        return Ok(await _repo.GetAllAsync(filter));
     }
 
     [HttpGet("{id}")]
@@ -37,37 +44,61 @@ public class TodoController: ControllerBase
         Summary = "Get All the tasks. filters between dates",
         Description = "Retrieves all of the tasks in the database"
     )]
-    public IActionResult GetById([FromRoute] int id)
+    public async Task<IActionResult> GetById([FromRoute] int id)
     {
 
-        var item = _context.TodoItems.SingleOrDefault(ite => ite.Id == id);
-
-
+        var item = await _repo.GetAsync(id);
+        
         if (item == null)
         {
             return NotFound();
         }
         
-        return Ok(item.ToTodoDto());
+        return Ok(item);
     }
 
     [HttpPost("")]
     public async Task<IActionResult> Post([FromBody] CreateTodoDto createDto)
     {
-        var model = createDto.ToTodoFromCreateDto();
    
         try
         {
-            _context.TodoItems.Add(model);
-            await _context.SaveChangesAsync();
+            var model = await _repo.CreateAsync(createDto);
+            return CreatedAtAction(nameof(GetById), new { id = model.Id }, model);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error saving TodoItem: {ex.Message}");
             return StatusCode(500, "Internal server error");
         }
-        var todoDto = model.ToTodoDto();
 
-        return CreatedAtAction(nameof(GetById), new { id = model.Id }, todoDto);
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateTodoDto updateDto)
+    {
+        try
+        {
+            var item = await _repo.UpdateEntity(id, updateDto);
+            return Ok(item);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete([FromRoute] int id)
+    {
+        try
+        {
+            await _repo.DeleteAsync(id);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+        return NoContent();
     }
 }

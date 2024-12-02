@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using api.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace api.Config;
 
-public class DatabaseContext: DbContext
+public class DatabaseContext: IdentityDbContext<User>
 {
     public DatabaseContext(DbContextOptions dbContextOptions): base(dbContextOptions)
     {

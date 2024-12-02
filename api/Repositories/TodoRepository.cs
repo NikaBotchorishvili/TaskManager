@@ -51,7 +51,7 @@ public class TodoRepo: IRepository<TodoItem, CreateTodoDto, UpdateTodoDto>
 
     public async Task DeleteAsync(int id)
     {
-        var item = await _context.TodoItems.FirstOrDefaultAsync(ite => ite.Id == id);
+        var item = await GetAsync(id);
 
         if (item == null)
         {
@@ -70,13 +70,10 @@ public class TodoRepo: IRepository<TodoItem, CreateTodoDto, UpdateTodoDto>
         }
     }
 
-    public async Task<TodoItem> UpdateEntity(int id, UpdateTodoDto entity)
+    public async Task<TodoItem?> UpdateEntity(int id, UpdateTodoDto entity)
     {
-        var item = await this.GetAsync(id);
-        if (item == null)
-        {
-            throw new ApplicationException("Item not found");
-        }
+        var item = await GetAsync(id);
+        if (item == null) return null;
         
         item.Title = entity.Title;
         item.Description = entity.Description;

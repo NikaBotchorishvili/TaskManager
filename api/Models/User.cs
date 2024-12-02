@@ -1,15 +1,8 @@
-using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Identity;
+
 namespace api.Models;
 
-public class User: BaseModel
+public class User: IdentityUser
 {
     
-    [JsonPropertyName("email")]
-    public string Email { get; set; }
-    
-    [JsonPropertyName("username")]
-    public string Username { get; set; }
-    
-    [JsonPropertyName("password")]
-    public string Password { get; set; }
 }

@@ -80,6 +80,7 @@ public class TodoController: ControllerBase
         try
         {
             var item = await _repo.UpdateEntity(id, updateDto);
+            if(item == null) return NotFound();
             return Ok(item);
         }
         catch (Exception ex)

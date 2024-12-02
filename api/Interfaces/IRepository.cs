@@ -9,5 +9,5 @@ public interface IRepository<T, TCreateDto, TUpdateDto>
 
      Task<T> CreateAsync(TCreateDto entity);
      Task DeleteAsync(int it);
-     Task<T> UpdateEntity(int id, TUpdateDto entity);
+     Task<T?> UpdateEntity(int id, TUpdateDto entity);
 }

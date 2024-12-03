@@ -2,10 +2,8 @@ using System.Linq.Expressions;
 using api.Config;
 using api.Dtos.TodoItem;
 using api.Interfaces;
-using api.Mappers;
 using api.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace api.Controllers;
@@ -29,12 +27,14 @@ public class TodoController: ControllerBase
     )]
     public async Task<IActionResult> GetAll([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         startDate ??= DateTime.MinValue;
         endDate ??= DateTime.MaxValue;
 
         Expression<Func<TodoItem, bool>> filter = (TodoItem item) => item.CreatedAt > startDate && item.CreatedAt < endDate;
-
-        
         
         return Ok(await _repo.GetAllAsync(filter));
     }
@@ -46,7 +46,10 @@ public class TodoController: ControllerBase
     )]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
-
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         var item = await _repo.GetAsync(id);
         
         if (item == null)
@@ -60,7 +63,10 @@ public class TodoController: ControllerBase
     [HttpPost("")]
     public async Task<IActionResult> Post([FromBody] CreateTodoDto createDto)
     {
-   
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         try
         {
             var model = await _repo.CreateAsync(createDto);
@@ -71,12 +77,15 @@ public class TodoController: ControllerBase
             Console.WriteLine($"Error saving TodoItem: {ex.Message}");
             return StatusCode(500, "Internal server error");
         }
-
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateTodoDto updateDto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         try
         {
             var item = await _repo.UpdateEntity(id, updateDto);
@@ -92,6 +101,10 @@ public class TodoController: ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         try
         {
             await _repo.DeleteAsync(id);

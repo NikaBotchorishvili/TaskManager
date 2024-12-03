@@ -21,14 +21,16 @@ public static class TodoMapper
     }
 
     public static TodoItem ToTodoFromCreateDto(this CreateTodoDto createDto)
-    {
-        var createTodoDto = new TodoItem
+    {   
+        Console.WriteLine(createDto.DueDate);
+        var createdTodoDto = new TodoItem
         {
             Title = createDto.Title,
             Description = createDto.Description,
             DueDate = createDto.DueDate,
+            Completed =  createDto.Completed,
         };
-
-        return createTodoDto;
+        Console.WriteLine(createdTodoDto.DueDate);
+        return createdTodoDto;
     }
 }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace api.Dtos.TodoItem;
 
@@ -15,6 +16,7 @@ public class UpdateTodoDto
     
     [Required]
     [DataType(DataType.DateTime)]
+    [JsonPropertyName("due_date")]
     public DateTime DueDate { get; set; }
 
     [Required]

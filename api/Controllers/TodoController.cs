@@ -3,6 +3,7 @@ using api.Config;
 using api.Dtos.TodoItem;
 using api.Interfaces;
 using api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -25,6 +26,7 @@ public class TodoController: ControllerBase
         Summary = "Get All the tasks. filters between dates",
         Description = "Retrieves all of the tasks in the database"
     )]
+    [Authorize()]
     public async Task<IActionResult> GetAll([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
     {
         if (!ModelState.IsValid)
@@ -39,7 +41,7 @@ public class TodoController: ControllerBase
         return Ok(await _repo.GetAllAsync(filter));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     [SwaggerOperation(
         Summary = "Get All the tasks. filters between dates",
         Description = "Retrieves all of the tasks in the database"

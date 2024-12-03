@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using api.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace api.Config;
@@ -15,6 +17,8 @@ public class DatabaseContext: IdentityDbContext<User>
     public DbSet<TodoItem> TodoItems { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
 
@@ -24,8 +28,6 @@ public class DatabaseContext: IdentityDbContext<User>
                 v => v.ToUniversalTime(), 
                 v => v.ToUniversalTime()   
             );
-
-            // Loop through each property in the entity
             foreach (var property in entityTypeClrType.GetProperties())
             {
                 
@@ -36,10 +38,28 @@ public class DatabaseContext: IdentityDbContext<User>
                         .HasConversion(dateTimeConverter);
                 }
             }
-
         }
+        List<IdentityRole> identityRoles =
+        [
+            new()
+            {
+                Name = "Admin",
+                NormalizedName = "ADMIN",
+            },
 
-        base.OnModelCreating(modelBuilder);
+            new()
+            {
+                Name = "User",
+                NormalizedName = "USER",
+            }
+
+        ];
+        modelBuilder.Entity<IdentityRole>().HasData(identityRoles);
     }
-
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.ConfigureWarnings(warnings => 
+            warnings.Ignore(RelationalEventId.PendingModelChangesWarning)
+        );
+    }
 }

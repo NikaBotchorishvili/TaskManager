@@ -15,10 +15,12 @@ public class AuthController: ControllerBase
 
     private readonly UserManager<User> _userManager;
     private readonly ITokenService _tokenService;
-    public AuthController(UserManager<User> userManager, ITokenService tokenService)
+    private readonly IAuthService _authService;
+    public AuthController(UserManager<User> userManager, ITokenService tokenService, IAuthService authService)
     {
         _userManager = userManager;
         _tokenService = tokenService;
+        _authService = authService;
     }
     
     [HttpPost("register")]
@@ -60,6 +62,17 @@ public class AuthController: ControllerBase
             };
             return BadRequest(errorDetails);
         }
-   
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var userResponse = await (_authService.Login(loginDto));
+
+        if (userResponse == null) return Unauthorized();
+        
+        return Ok(userResponse);
     }
 }

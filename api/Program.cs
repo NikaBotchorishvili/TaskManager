@@ -5,6 +5,7 @@ using api.Dtos.TodoItem;
 using api.Interfaces;
 using api.Models;
 using api.Repositories;
+using api.Services;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -58,7 +59,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 builder.Services.AddScoped<IRepository<TodoItem, CreateTodoDto, UpdateTodoDto>, TodoRepo>();
-
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -100,7 +101,6 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 var app = builder.Build();
 
 
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -110,8 +110,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Task API v1");
-        options.RoutePrefix = string.Empty;
+        options.RoutePrefix = "swagger";
     });
+}
+else
+{
+    app.UseHttpsRedirection();
+
 }
 
 app.MapControllers();

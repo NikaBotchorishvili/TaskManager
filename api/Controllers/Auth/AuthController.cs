@@ -1,5 +1,7 @@
 using api.Dtos.Auth;
+using api.Interfaces;
 using api.Models;
+using api.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,9 +14,11 @@ public class AuthController: ControllerBase
 {
 
     private readonly UserManager<User> _userManager;
-    public AuthController(UserManager<User> userManager)
+    private readonly ITokenService _tokenService;
+    public AuthController(UserManager<User> userManager, ITokenService tokenService)
     {
         _userManager = userManager;
+        _tokenService = tokenService;
     }
     
     [HttpPost("register")]
@@ -40,12 +44,21 @@ public class AuthController: ControllerBase
 
             if (!rolesResult.Succeeded) return BadRequest(rolesResult.Errors);
 
-            return Ok("User Registered Successfully");
+            return Ok(new NewUserDto
+            {
+                Email = user.Email,
+                Username = user.UserName,
+                Token = _tokenService.CreateToken(user)
+            });
 
         }
         catch (Exception ex)
         {
-            return BadRequest(ex);
+            var errorDetails = new 
+            {
+                ex.Message, ex.StackTrace
+            };
+            return BadRequest(errorDetails);
         }
    
     }

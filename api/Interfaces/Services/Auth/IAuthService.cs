@@ -6,4 +6,6 @@ namespace api.Interfaces;
 public interface IAuthService
 {
     Task<NewUserDto?> Login(LoginDto loginDto);
+
+    Task<NewUserDto?> Register(RegisterDto registerDto);
 }

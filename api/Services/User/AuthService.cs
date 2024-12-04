@@ -46,4 +46,28 @@ public class AuthService: IAuthService
             throw new Exception(ex.Message);
         }
     }
+
+    public async Task<NewUserDto?> Register(RegisterDto registerDto)
+    {
+        User user = new User
+        {
+            UserName = registerDto.Username,
+            Email = registerDto.Email,
+        };
+
+        IdentityResult userResult = await _userManager.CreateAsync(user, registerDto.Password);
+
+        if (!userResult.Succeeded) return null;
+
+        IdentityResult rolesResult = await _userManager.AddToRoleAsync(user, "User");
+
+        if (!rolesResult.Succeeded) return null;
+
+        return new NewUserDto
+        {
+            Email = user.Email,
+            Username = user.UserName,
+            Token = _tokenService.CreateToken(user)
+        };
+    }
 }

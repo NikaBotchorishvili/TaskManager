@@ -13,4 +13,9 @@ public class TodoItem : BaseModel
 
     [JsonPropertyName("completed")] 
     public bool Completed { get; set; } = false;
+    
+    
+    public User User { get; set; }
+    
+    public string UserId { get; set; } = string.Empty;
 }

@@ -16,10 +16,12 @@ public class TodoController: ControllerBase
 {
     private readonly DatabaseContext _context ;
     private readonly IRepository<TodoItem, CreateTodoDto, UpdateTodoDto> _repo;
-    public TodoController(IRepository<TodoItem, CreateTodoDto, UpdateTodoDto> repo, DatabaseContext context)
+    private readonly IUserService _userService;
+    public TodoController(IRepository<TodoItem, CreateTodoDto, UpdateTodoDto> repo, DatabaseContext context, IUserService userService)
     {
         _context = context;
         _repo = repo;
+        _userService = userService;
     }
 
     [HttpGet("all/")]
@@ -36,7 +38,7 @@ public class TodoController: ControllerBase
         }
         startDate ??= DateTime.MinValue;
         endDate ??= DateTime.MaxValue;
-
+        
         Expression<Func<TodoItem, bool>> filter = (TodoItem item) => item.CreatedAt > startDate && item.CreatedAt < endDate;
         
         return Ok(await _repo.GetAllAsync(filter));
@@ -64,15 +66,22 @@ public class TodoController: ControllerBase
     }
 
     [HttpPost("")]
+    [Authorize]
     public async Task<IActionResult> Post([FromBody] CreateTodoDto createDto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
+        var userId = _userService.GetUserIdFromClaims();
+
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
         try
         {
-            var model = await _repo.CreateAsync(createDto);
+            var model = await _repo.CreateAsync(createDto, userId);
             return CreatedAtAction(nameof(GetById), new { id = model.Id }, model);
         }
         catch (Exception ex)
@@ -100,7 +109,8 @@ public class TodoController: ControllerBase
             return StatusCode(500, ex.Message);
         }
     }
-
+    
+    [Authorize]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {

@@ -32,10 +32,10 @@ public class TodoRepo: IRepository<TodoItem, CreateTodoDto, UpdateTodoDto>
         return item;
     }
 
-    public async Task<TodoItem> CreateAsync(CreateTodoDto createTodo)
+    public async Task<TodoItem> CreateAsync(CreateTodoDto createTodo, string userId)
     {
-        var model = createTodo.ToTodoFromCreateDto();
-
+        var model = createTodo.ToTodoFromCreateDto(userId);
+        model.UserId = userId;
         try
         {
             _dbSet.Add(model);

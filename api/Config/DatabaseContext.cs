@@ -54,6 +54,7 @@ public class DatabaseContext: IdentityDbContext<User>
             }
 
         ];
+     
         modelBuilder.Entity<IdentityRole>().HasData(identityRoles);
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

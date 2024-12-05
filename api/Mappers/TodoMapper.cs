@@ -20,7 +20,7 @@ public static class TodoMapper
         return todoDto;
     }
 
-    public static TodoItem ToTodoFromCreateDto(this CreateTodoDto createDto)
+    public static TodoItem ToTodoFromCreateDto(this CreateTodoDto createDto, string userId)
     {   
         Console.WriteLine(createDto.DueDate);
         var createdTodoDto = new TodoItem
@@ -29,6 +29,7 @@ public static class TodoMapper
             Description = createDto.Description,
             DueDate = createDto.DueDate,
             Completed =  createDto.Completed,
+            UserId = userId
         };
         Console.WriteLine(createdTodoDto.DueDate);
         return createdTodoDto;

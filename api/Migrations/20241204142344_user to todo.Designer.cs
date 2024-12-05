@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using api.Config;
@@ -11,9 +12,11 @@ using api.Config;
 namespace api.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20241204142344_user to todo")]
+    partial class usertotodo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,13 +53,13 @@ namespace api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e37366b7-3c22-4e0a-a467-c2c92935c9a8",
+                            Id = "6121ae8a-8c39-4429-9f4d-adc260ad61a9",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "09a57f3a-c2a5-42e0-82c9-99305ae948bd",
+                            Id = "e92d0f26-5b76-4abd-9ed9-b6e360a6b4d8",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -202,7 +205,6 @@ namespace api.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -330,17 +332,10 @@ namespace api.Migrations
             modelBuilder.Entity("api.Models.TodoItem", b =>
                 {
                     b.HasOne("api.Models.User", "User")
-                        .WithMany("TodoItems")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("api.Models.User", b =>
-                {
-                    b.Navigation("TodoItems");
                 });
 #pragma warning restore 612, 618
         }

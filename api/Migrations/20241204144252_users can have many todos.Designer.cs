@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using api.Config;
@@ -11,9 +12,11 @@ using api.Config;
 namespace api.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20241204144252_users can have many todos")]
+    partial class userscanhavemanytodos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,13 +53,13 @@ namespace api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e37366b7-3c22-4e0a-a467-c2c92935c9a8",
+                            Id = "0d4e23ea-1fed-487b-afe1-9e784b52bb4f",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "09a57f3a-c2a5-42e0-82c9-99305ae948bd",
+                            Id = "daacef48-c8e9-49cb-8e46-d74bdf24f9b4",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -202,7 +205,6 @@ namespace api.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -331,9 +333,7 @@ namespace api.Migrations
                 {
                     b.HasOne("api.Models.User", "User")
                         .WithMany("TodoItems")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });

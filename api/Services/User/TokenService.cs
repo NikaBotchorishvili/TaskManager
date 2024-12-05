@@ -25,15 +25,15 @@ public class TokenService: ITokenService
         _expiresInMinutes = int.TryParse(config["JWT:ExpiresInMinutes"], out var minutes) ? minutes : 0;
         _expiresInSeconds = int.TryParse(config["JWT:ExpiresInSeconds"], out var seconds) ? seconds : 0;
     }
-
+    
     public string CreateToken(User user)
     {
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Email, user.Email!),
-            new(JwtRegisteredClaimNames.Email, user.UserName!),
+            new(JwtRegisteredClaimNames.Sub, user.Id),
         };
-
+            Console.WriteLine(user.Id);
         var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
 
         var now = DateTime.UtcNow;
